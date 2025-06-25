@@ -23,5 +23,5 @@ public class ExerciseDTO {
 
     @NotNull @PositiveOrZero(message = "Le poids ne peut être négatif")
     private Double weight;
-    
+
 }

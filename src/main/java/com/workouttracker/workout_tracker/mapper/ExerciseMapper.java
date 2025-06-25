@@ -9,10 +9,7 @@ import com.workouttracker.workout_tracker.dto.ExerciseDTO;
 @Mapper(componentModel = "spring")
 public interface ExerciseMapper {
 
-
-    @Mapping(target = "workoutId", source = "workout.id")
     ExerciseDTO toDto(Exercise exercise);
 
-    @Mapping(target = "workout", ignore = true)
     Exercise toEntity(ExerciseDTO dto);
 }

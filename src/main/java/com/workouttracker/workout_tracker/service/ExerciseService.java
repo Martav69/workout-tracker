@@ -8,8 +8,9 @@ import java.util.List;
  */
 public interface ExerciseService {
     ExerciseDTO createExercise(Long workoutId, ExerciseDTO dto);
+    List<ExerciseDTO> getAllExercises();
     List<ExerciseDTO> getExercisesByWorkout(Long workoutId);
-    ExerciseDTO getExerciseById(Long workoutId, Long exerciseId);
-    ExerciseDTO updateExercise(Long workoutId, Long exerciseId, ExerciseDTO dto);
-    void deleteExercise(Long workoutId, Long exerciseId);
+    ExerciseDTO getExerciseById(Long exerciseId);
+    ExerciseDTO updateExercise(Long exerciseId, ExerciseDTO dto);
+    void deleteExercise(Long exerciseId);
 }

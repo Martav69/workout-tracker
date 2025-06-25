@@ -6,9 +6,11 @@ import com.workouttracker.workout_tracker.model.Exercise;
 import com.workouttracker.workout_tracker.model.Workout;
 import com.workouttracker.workout_tracker.repository.ExerciseRepository;
 import com.workouttracker.workout_tracker.repository.WorkoutRepository;
+import com.workouttracker.workout_tracker.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,71 +22,87 @@ public class ExerciseServiceImpl implements ExerciseService {
     private final ExerciseRepository exerciseRepository;
     private final WorkoutRepository workoutRepository;
     private final ExerciseMapper exerciseMapper;
+    private final SecurityUtils securityUtils;
 
     @Override
     @Transactional
     public ExerciseDTO createExercise(Long workoutId, ExerciseDTO dto) {
-        // 1) Charger la séance depuis l'ID passé en paramètre
         Workout workout = workoutRepository.findById(workoutId)
                 .orElseThrow(() -> new IllegalArgumentException("Séance non trouvée : " + workoutId));
+        // Sécurité
+        Long currentUserId = securityUtils.getCurrentUserId();
+        if (!workout.getUser().getId().equals(currentUserId)) {
+            throw new IllegalArgumentException("Accès refusé à la séance " + workoutId);
+        }
 
-        // 2) Convertir le DTO en entité (on ignore dto.getWorkoutId() si présent)
         Exercise exercise = exerciseMapper.toEntity(dto);
-
-        // 3) Lier l'exercice à la séance
         exercise.setWorkout(workout);
-
-        // 4) Sauvegarder et renvoyer le DTO
-        Exercise saved = exerciseRepository.save(exercise);
-        return exerciseMapper.toDto(saved);
+        return exerciseMapper.toDto(exerciseRepository.save(exercise));
     }
-
 
     @Override
     @Transactional(readOnly = true)
-    public List<ExerciseDTO> getExercisesByWorkout(Long workoutId) {
-        return exerciseRepository.findByWorkoutId(workoutId).stream()
+    public List<ExerciseDTO> getAllExercises() {
+        Long currentUserId = securityUtils.getCurrentUserId();
+        // on ne veut que les exercices des séances du user
+        return exerciseRepository.findAll().stream()
+                .filter(e -> e.getWorkout().getUser().getId().equals(currentUserId))
                 .map(exerciseMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ExerciseDTO getExerciseById(Long workoutId, Long exerciseId) {
-        Exercise exercise = exerciseRepository.findById(exerciseId)
+    public List<ExerciseDTO> getExercisesByWorkout(Long workoutId) {
+        // Vérif séance + appartenance
+        Workout workout = workoutRepository.findById(workoutId)
+                .orElseThrow(() -> new IllegalArgumentException("Séance non trouvée : " + workoutId));
+        Long currentUserId = securityUtils.getCurrentUserId();
+        if (!workout.getUser().getId().equals(currentUserId)) {
+            throw new IllegalArgumentException("Accès refusé à la séance " + workoutId);
+        }
+        return exerciseRepository.findByWorkoutId(workoutId)
+                .stream().map(exerciseMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ExerciseDTO getExerciseById(Long exerciseId) {
+        Exercise e = exerciseRepository.findById(exerciseId)
                 .orElseThrow(() -> new IllegalArgumentException("Exercice non trouvé : " + exerciseId));
-        if (!exercise.getWorkout().getId().equals(workoutId)) {
+        Long currentUserId = securityUtils.getCurrentUserId();
+        if (!e.getWorkout().getUser().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("Accès refusé à l'exercice " + exerciseId);
         }
-        return exerciseMapper.toDto(exercise);
+        return exerciseMapper.toDto(e);
     }
 
     @Override
     @Transactional
-    public ExerciseDTO updateExercise(Long workoutId, Long exerciseId, ExerciseDTO dto) {
+    public ExerciseDTO updateExercise(Long exerciseId, ExerciseDTO dto) {
         Exercise existing = exerciseRepository.findById(exerciseId)
                 .orElseThrow(() -> new IllegalArgumentException("Exercice non trouvé : " + exerciseId));
-        if (!existing.getWorkout().getId().equals(workoutId)) {
+        Long currentUserId = securityUtils.getCurrentUserId();
+        if (!existing.getWorkout().getUser().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("Accès refusé à l'exercice " + exerciseId);
         }
-
         existing.setName(dto.getName());
         existing.setSets(dto.getSets());
         existing.setReps(dto.getReps());
         existing.setWeight(dto.getWeight());
-
-        Exercise saved = exerciseRepository.save(existing);
-        return exerciseMapper.toDto(saved);
+        return exerciseMapper.toDto(exerciseRepository.save(existing));
     }
 
     @Override
     @Transactional
-    public void deleteExercise(Long workoutId, Long exerciseId) {
-        Exercise exercise = exerciseRepository.findById(exerciseId)
+    public void deleteExercise(Long exerciseId) {
+        Exercise e = exerciseRepository.findById(exerciseId)
                 .orElseThrow(() -> new IllegalArgumentException("Exercice non trouvé : " + exerciseId));
-        if (!exercise.getWorkout().getId().equals(workoutId)) {
+        Long currentUserId = securityUtils.getCurrentUserId();
+        if (!e.getWorkout().getUser().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("Accès refusé à l'exercice " + exerciseId);
         }
-        exerciseRepository.delete(exercise);
+        exerciseRepository.delete(e);
     }
 }
+
