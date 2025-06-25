@@ -23,16 +23,22 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     @Transactional
-    public ExerciseDTO createExercise(ExerciseDTO dto) {
-        Workout workout = workoutRepository.findById(dto.getWorkoutId())
-                .orElseThrow(() -> new IllegalArgumentException("Séance non trouvée : " + dto.getWorkoutId()));
+    public ExerciseDTO createExercise(Long workoutId, ExerciseDTO dto) {
+        // 1) Charger la séance depuis l'ID passé en paramètre
+        Workout workout = workoutRepository.findById(workoutId)
+                .orElseThrow(() -> new IllegalArgumentException("Séance non trouvée : " + workoutId));
 
+        // 2) Convertir le DTO en entité (on ignore dto.getWorkoutId() si présent)
         Exercise exercise = exerciseMapper.toEntity(dto);
+
+        // 3) Lier l'exercice à la séance
         exercise.setWorkout(workout);
 
+        // 4) Sauvegarder et renvoyer le DTO
         Exercise saved = exerciseRepository.save(exercise);
         return exerciseMapper.toDto(saved);
     }
+
 
     @Override
     @Transactional(readOnly = true)

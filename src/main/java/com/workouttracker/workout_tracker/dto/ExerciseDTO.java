@@ -23,7 +23,5 @@ public class ExerciseDTO {
 
     @NotNull @PositiveOrZero(message = "Le poids ne peut être négatif")
     private Double weight;
-
-    /** ID seulement si jamais besoin côté client / pour eviter les circulaire */
-    private Long workoutId;
+    
 }

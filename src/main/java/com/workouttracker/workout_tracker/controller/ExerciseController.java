@@ -25,10 +25,11 @@ public class ExerciseController {
             @PathVariable Long workoutId,
             @Valid @RequestBody ExerciseDTO dto
     ) {
-        dto.setWorkoutId(workoutId);
-        ExerciseDTO created = exerciseService.createExercise(dto);
+
+        ExerciseDTO created = exerciseService.createExercise(workoutId, dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
+
 
     /**
      * Liste tous les exercices de la séance.
