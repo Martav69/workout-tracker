@@ -76,6 +76,7 @@ public class WorkoutServiceImpl implements WorkoutService {
         }
 
         // Mettre à jour les champs simples
+        existing.setName(dto.getName());
         existing.setDate(dto.getDate());
         existing.setDurationMinutes(dto.getDurationMinutes());
         existing.setNotes(dto.getNotes());

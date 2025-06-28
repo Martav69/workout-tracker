@@ -13,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/workouts")
 @RequiredArgsConstructor
+@CrossOrigin
 public class WorkoutController {
 
     private final WorkoutService workoutService;

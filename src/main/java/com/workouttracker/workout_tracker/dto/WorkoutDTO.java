@@ -21,6 +21,11 @@ public class WorkoutDTO {
 
     private Long id;
 
+    @NotNull(message = "Le nom de la séance est requis")
+    @Size(max = 100, message = "Le nom ne peut dépasser 100 caractères.")
+    private String name;
+
+
     @NotNull(message = "La date de la séance est requise !")
     private LocalDate date;
 
