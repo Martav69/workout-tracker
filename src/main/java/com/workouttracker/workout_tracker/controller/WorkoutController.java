@@ -29,15 +29,8 @@ public class WorkoutController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<WorkoutDTO>> listByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(workoutService.getWorkoutsByUser());
-    }
-
-
     @GetMapping("/{id}")
     public ResponseEntity<WorkoutDTO> getOne(@PathVariable Long id) {
-        Long currentUserId = SecurityUtils.getCurrentUserId();
         return ResponseEntity.ok(workoutService.getWorkoutById(id));
     }
 
@@ -45,17 +38,13 @@ public class WorkoutController {
     @PutMapping("/{id}")
     public ResponseEntity<WorkoutDTO> update(
             @PathVariable Long id,
-            @RequestParam Long userId,
             @Valid @RequestBody WorkoutDTO dto
     ) {
         return ResponseEntity.ok(workoutService.updateWorkout(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
-            @PathVariable Long id,
-            @RequestParam Long userId
-    ) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         workoutService.deleteWorkout(id);
         return ResponseEntity.noContent().build();
     }

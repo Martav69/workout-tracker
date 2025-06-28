@@ -1,5 +1,6 @@
 package com.workouttracker.workout_tracker.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -36,7 +37,7 @@ public class WorkoutDTO {
     @Size(max = 500, message = "Les notes ne peuvent dépasser 500 caractères.")
     private String notes;
 
-    @NotNull(message = "L'ID de l'utilisateur est requis")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long userId;
 
     @NotNull(message = "La liste des exercices est requise")
