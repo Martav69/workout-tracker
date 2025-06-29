@@ -22,7 +22,6 @@ public class ExerciseServiceImpl implements ExerciseService {
     private final ExerciseRepository exerciseRepository;
     private final WorkoutRepository workoutRepository;
     private final ExerciseMapper exerciseMapper;
-    private final SecurityUtils securityUtils;
 
     @Override
     @Transactional
@@ -30,7 +29,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         Workout workout = workoutRepository.findById(workoutId)
                 .orElseThrow(() -> new IllegalArgumentException("Séance non trouvée : " + workoutId));
         // Sécurité
-        Long currentUserId = securityUtils.getCurrentUserId();
+        Long currentUserId = SecurityUtils.getCurrentUserId();
         if (!workout.getUser().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("Accès refusé à la séance " + workoutId);
         }
@@ -43,7 +42,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     @Override
     @Transactional(readOnly = true)
     public List<ExerciseDTO> getAllExercises() {
-        Long currentUserId = securityUtils.getCurrentUserId();
+        Long currentUserId = SecurityUtils.getCurrentUserId();
         // on ne veut que les exercices des séances du user
         return exerciseRepository.findAll().stream()
                 .filter(e -> e.getWorkout().getUser().getId().equals(currentUserId))
@@ -57,7 +56,7 @@ public class ExerciseServiceImpl implements ExerciseService {
         // Vérif séance + appartenance
         Workout workout = workoutRepository.findById(workoutId)
                 .orElseThrow(() -> new IllegalArgumentException("Séance non trouvée : " + workoutId));
-        Long currentUserId = securityUtils.getCurrentUserId();
+        Long currentUserId = SecurityUtils.getCurrentUserId();
         if (!workout.getUser().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("Accès refusé à la séance " + workoutId);
         }
@@ -70,7 +69,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     public ExerciseDTO getExerciseById(Long exerciseId) {
         Exercise e = exerciseRepository.findById(exerciseId)
                 .orElseThrow(() -> new IllegalArgumentException("Exercice non trouvé : " + exerciseId));
-        Long currentUserId = securityUtils.getCurrentUserId();
+        Long currentUserId = SecurityUtils.getCurrentUserId();
         if (!e.getWorkout().getUser().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("Accès refusé à l'exercice " + exerciseId);
         }
@@ -82,7 +81,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     public ExerciseDTO updateExercise(Long exerciseId, ExerciseDTO dto) {
         Exercise existing = exerciseRepository.findById(exerciseId)
                 .orElseThrow(() -> new IllegalArgumentException("Exercice non trouvé : " + exerciseId));
-        Long currentUserId = securityUtils.getCurrentUserId();
+        Long currentUserId = SecurityUtils.getCurrentUserId();
         if (!existing.getWorkout().getUser().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("Accès refusé à l'exercice " + exerciseId);
         }
@@ -98,7 +97,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     public void deleteExercise(Long exerciseId) {
         Exercise e = exerciseRepository.findById(exerciseId)
                 .orElseThrow(() -> new IllegalArgumentException("Exercice non trouvé : " + exerciseId));
-        Long currentUserId = securityUtils.getCurrentUserId();
+        Long currentUserId = SecurityUtils.getCurrentUserId();
         if (!e.getWorkout().getUser().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("Accès refusé à l'exercice " + exerciseId);
         }
